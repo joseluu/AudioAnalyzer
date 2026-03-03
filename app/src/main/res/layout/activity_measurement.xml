@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FREQUENCY SWEEP"
+        android:textSize="20sp"
+        android:textColor="@color/textPrimary"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Controls row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <Button
+            android:id="@+id/btnStartMeasurement"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/start_measurement"
+            android:textSize="14sp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnStopMeasurement"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/stop_measurement"
+            android:textSize="14sp"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scale: "
+            android:textSize="14sp"
+            android:textColor="@color/textSecondary" />
+
+        <ToggleButton
+            android:id="@+id/toggleScale"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:textOn="Linear"
+            android:textOff="Log"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Chart -->
+    <com.audioanalyzer.ui.ChartView
+        android:id="@+id/chartView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Progress -->
+    <TextView
+        android:id="@+id/tvProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ready"
+        android:textSize="14sp"
+        android:textColor="@color/textPrimary"
+        android:layout_marginTop="8dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Bottom buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/btnExport"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/export_csv"
+            android:textSize="14sp"
+            android:layout_marginEnd="16dp" />
+    </LinearLayout>
+</LinearLayout>

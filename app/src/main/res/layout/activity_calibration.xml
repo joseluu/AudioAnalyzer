@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CALIBRATION"
+            android:textSize="22sp"
+            android:textColor="@color/textPrimary"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Channel selection -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Channel:"
+            android:textSize="16sp"
+            android:textColor="@color/textSecondary" />
+
+        <RadioGroup
+            android:id="@+id/channelGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <RadioButton
+                android:id="@+id/radioLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/channel_left"
+                android:textColor="@color/textPrimary"
+                android:checked="true"
+                android:layout_marginEnd="24dp" />
+
+            <RadioButton
+                android:id="@+id/radioRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/channel_right"
+                android:textColor="@color/textPrimary" />
+        </RadioGroup>
+
+        <!-- Start button -->
+        <Button
+            android:id="@+id/btnStartCalibration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/start_calibration"
+            android:textSize="16sp"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Delay result -->
+        <TextView
+            android:id="@+id/tvDelay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delay_label"
+            android:textSize="16sp"
+            android:textColor="@color/textPrimary"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Phase verification section -->
+        <LinearLayout
+            android:id="@+id/phaseLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phase verification:"
+                android:textSize="16sp"
+                android:textColor="@color/textSecondary"
+                android:layout_marginBottom="8dp" />
+
+            <!-- 30 Hz -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="30 Hz:"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <TextView
+                    android:id="@+id/tvPhase30"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/phase_not_measured"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <Button
+                    android:id="@+id/btnRemeasure30"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="@string/remeasure"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- 100 Hz -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="100 Hz:"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <TextView
+                    android:id="@+id/tvPhase100"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/phase_not_measured"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <Button
+                    android:id="@+id/btnRemeasure100"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="@string/remeasure"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- 300 Hz -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="300 Hz:"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <TextView
+                    android:id="@+id/tvPhase300"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/phase_not_measured"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <Button
+                    android:id="@+id/btnRemeasure300"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="@string/remeasure"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- 1000 Hz -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="1000 Hz:"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <TextView
+                    android:id="@+id/tvPhase1000"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/phase_not_measured"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <Button
+                    android:id="@+id/btnRemeasure1000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="@string/remeasure"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Fine adjustment -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fine delay adjustment:"
+                android:textSize="14sp"
+                android:textColor="@color/textSecondary"
+                android:layout_marginBottom="4dp" />
+
+            <SeekBar
+                android:id="@+id/seekFineAdjust"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="50" />
+
+            <TextView
+                android:id="@+id/tvFineAdjust"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fine_adjustment"
+                android:textSize="14sp"
+                android:textColor="@color/textPrimary"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Validate button -->
+            <Button
+                android:id="@+id/btnValidate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/validate_proceed"
+                android:textSize="16sp"
+                android:enabled="false" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

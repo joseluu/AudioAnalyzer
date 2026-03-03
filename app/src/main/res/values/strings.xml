@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Audio Analyzer</string>
+    <string name="channel_left">Left</string>
+    <string name="channel_right">Right</string>
+    <string name="calibrate">Calibrate</string>
+    <string name="measure">Measure</string>
+    <string name="start_calibration">Start Calibration</string>
+    <string name="validate_proceed">Validate &amp; Proceed to Measurement</string>
+    <string name="remeasure">Re-measure</string>
+    <string name="start_measurement">Start</string>
+    <string name="stop_measurement">Stop</string>
+    <string name="export_csv">Export CSV</string>
+    <string name="scale_toggle">Lin</string>
+    <string name="delay_label">Delay: not measured</string>
+    <string name="phase_not_measured">--</string>
+    <string name="fine_adjustment">Fine adjustment: +0 samples</string>
+</resources>

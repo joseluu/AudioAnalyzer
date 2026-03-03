@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Audio Path Analyzer"
+        android:textSize="24sp"
+        android:textColor="@color/textPrimary"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="40dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select output channel:"
+        android:textSize="16sp"
+        android:textColor="@color/textSecondary"
+        android:layout_marginBottom="12dp" />
+
+    <RadioGroup
+        android:id="@+id/mainChannelGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="40dp">
+
+        <RadioButton
+            android:id="@+id/mainRadioLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/channel_left"
+            android:textColor="@color/textPrimary"
+            android:checked="true"
+            android:layout_marginEnd="24dp" />
+
+        <RadioButton
+            android:id="@+id/mainRadioRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/channel_right"
+            android:textColor="@color/textPrimary" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnCalibrate"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="@string/calibrate"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnDirectMeasure"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="@string/measure"
+        android:textSize="18sp"
+        android:enabled="false" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Calibrate before measuring"
+        android:textSize="14sp"
+        android:textColor="@color/textSecondary"
+        android:layout_marginTop="24dp" />
+
+</LinearLayout>
