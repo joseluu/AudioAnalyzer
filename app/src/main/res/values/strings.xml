@@ -13,6 +13,11 @@
     <string name="export_csv">Export CSV</string>
     <string name="scale_toggle">Lin</string>
     <string name="delay_label">Delay: not measured</string>
+    <string name="measure_ping_delay">Measure Ping Delay</string>
+    <string name="measure_chirp_delay">Measure Chirp Delay</string>
+    <string name="run_phase_verification">Run Phase Verification</string>
+    <string name="chirp_delay_label">Chirp delay: not measured</string>
+    <string name="chirp_not_measured">--</string>
     <string name="phase_not_measured">--</string>
     <string name="fine_adjustment">Fine adjustment: +0 samples</string>
 </resources>

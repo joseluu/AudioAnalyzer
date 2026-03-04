@@ -84,6 +84,43 @@ public class SignalGenerator {
     }
 
     /**
+     * Generate an exponential chirp sweep from startFreq to endFreq.
+     * Instantaneous frequency: f(t) = startFreq * R^(t/T) where R = endFreq/startFreq
+     * Phase: φ(t) = 2π * startFreq * T / ln(R) * (e^(t*ln(R)/T) - 1)
+     * Applies 1ms fade-in/out at edges.
+     */
+    public void generateChirp(float[] buffer, int sampleRate, double startFreq,
+                               double endFreq, int durationSamples, float amplitude) {
+        int fadeSamples = sampleRate / 1000; // 1ms fade
+        if (fadeSamples > durationSamples / 2) fadeSamples = durationSamples / 2;
+
+        double T = (double) durationSamples / sampleRate;
+        double R = endFreq / startFreq;
+        double lnR = Math.log(R);
+
+        int len = Math.min(buffer.length, durationSamples);
+        for (int i = 0; i < len; i++) {
+            double t = (double) i / sampleRate;
+            double phase = 2.0 * Math.PI * startFreq * T / lnR * (Math.exp(t * lnR / T) - 1.0);
+            float sample = (float) (amplitude * Math.sin(phase));
+
+            // Fade-in
+            if (i < fadeSamples) {
+                sample *= (float) i / fadeSamples;
+            }
+            // Fade-out
+            if (i >= durationSamples - fadeSamples) {
+                sample *= (float) (durationSamples - 1 - i) / fadeSamples;
+            }
+            buffer[i] = sample;
+        }
+        // Zero-fill remainder
+        for (int i = len; i < buffer.length; i++) {
+            buffer[i] = 0f;
+        }
+    }
+
+    /**
      * Generate burst in stereo format.
      */
     public void generateStereoBurst(float[] stereoBuffer, double frequency, int sampleRate,

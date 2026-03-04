@@ -15,7 +15,15 @@
             android:text="CALIBRATION"
             android:textSize="22sp"
             android:textColor="@color/textPrimary"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvSampleRate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/textSecondary"
+            android:layout_marginBottom="16dp" />
 
         <!-- Channel selection -->
         <TextView
@@ -49,16 +57,23 @@
                 android:textColor="@color/textPrimary" />
         </RadioGroup>
 
-        <!-- Start button -->
+        <!-- ==================== Step 1: Ping Delay ==================== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Step 1 — Ping Delay"
+            android:textSize="16sp"
+            android:textColor="@color/textSecondary"
+            android:layout_marginBottom="8dp" />
+
         <Button
             android:id="@+id/btnStartCalibration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/start_calibration"
+            android:text="@string/measure_ping_delay"
             android:textSize="16sp"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="4dp" />
 
-        <!-- Delay result -->
         <TextView
             android:id="@+id/tvDelay"
             android:layout_width="wrap_content"
@@ -68,7 +83,105 @@
             android:textColor="@color/textPrimary"
             android:layout_marginBottom="20dp" />
 
-        <!-- Phase verification section -->
+        <!-- ==================== Step 2: Chirp Delay ==================== -->
+        <LinearLayout
+            android:id="@+id/chirpLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Step 2 — Chirp Delay"
+                android:textSize="16sp"
+                android:textColor="@color/textSecondary"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/btnChirpDelay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/measure_chirp_delay"
+                android:textSize="16sp"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Individual chirp delays -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="Chirp 1:"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <TextView
+                    android:id="@+id/tvChirp1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chirp_not_measured"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="Chirp 2:"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <TextView
+                    android:id="@+id/tvChirp2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chirp_not_measured"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="Chirp 3:"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+                <TextView
+                    android:id="@+id/tvChirp3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chirp_not_measured"
+                    android:textSize="14sp"
+                    android:textColor="@color/textPrimary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvChirpAvg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/chirp_delay_label"
+                android:textSize="16sp"
+                android:textColor="@color/textPrimary"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- ==================== Step 3: Phase Verification ==================== -->
         <LinearLayout
             android:id="@+id/phaseLayout"
             android:layout_width="match_parent"
@@ -79,9 +192,17 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Phase verification:"
+                android:text="Step 3 — Phase Verification"
                 android:textSize="16sp"
                 android:textColor="@color/textSecondary"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/btnPhaseVerification"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/run_phase_verification"
+                android:textSize="16sp"
                 android:layout_marginBottom="8dp" />
 
             <!-- 30 Hz -->

@@ -13,6 +13,7 @@ public class CalibrationManager {
 
     public interface CalibrationListener {
         void onDelayMeasured(int delaySamples, double delayMs);
+        void onChirpDelayMeasured(int delaySamples, double delayMs, double[] individualDelays);
         void onPhaseVerification(double frequency, double phaseDegrees);
         void onCalibrationComplete(CalibrationResult result);
         void onError(String message);
@@ -20,6 +21,11 @@ public class CalibrationManager {
 
     private static final double BURST_FREQUENCY = 1000.0;
     private static final int NUM_BURSTS = 5;
+    private static final int NUM_CHIRPS = 3;
+    private static final double CHIRP_START_FREQ = 200.0;
+    private static final double CHIRP_END_FREQ = 4000.0;
+    private static final double CHIRP_DURATION_SEC = 0.500;
+    private static final double CHIRP_SILENCE_SEC = 0.500;
     private static final double[] VERIFICATION_FREQUENCIES = {30.0, 100.0, 300.0, 1000.0};
 
     private final int sampleRate;
@@ -41,7 +47,7 @@ public class CalibrationManager {
     private int totalRecordSamples;
 
     // Current state
-    private enum State { IDLE, MEASURING_DELAY, VERIFYING_PHASE }
+    private enum State { IDLE, MEASURING_DELAY, MEASURING_CHIRP_DELAY, VERIFYING_PHASE }
     private volatile State state = State.IDLE;
     private int currentVerifyIndex;
 
@@ -137,19 +143,120 @@ public class CalibrationManager {
         float[] refBurst = new float[signalSamples];
         generator.generateSine(refBurst, BURST_FREQUENCY, sampleRate, 0, 0.8f);
 
-        int maxDelay = (int) (0.200 * sampleRate); // 200ms max
+        int maxDelay = (int) (0.300 * sampleRate); // 300ms max
         int burstSpacing = signalSamples + silenceSamples;
 
-        double delay = delayEstimator.estimateDelayMultiBurst(
+        DelayEstimator.MultiBurstResult result = delayEstimator.estimateDelayMultiBurstValidated(
                 refBurst, recordBuffer, burstSpacing, NUM_BURSTS, maxDelay);
-
-        measuredDelaySamples = (int) Math.round(delay);
-        double delayMs = delay / sampleRate * 1000.0;
 
         calibrating = false;
 
+        if (!result.valid) {
+            if (listener != null) {
+                listener.onError(result.rejectReason);
+            }
+            return;
+        }
+
+        measuredDelaySamples = (int) Math.round(result.delaySamples);
+        double delayMs = result.delaySamples / sampleRate * 1000.0;
+
         if (listener != null) {
             listener.onDelayMeasured(measuredDelaySamples, delayMs);
+        }
+    }
+
+    /**
+     * Start chirp delay measurement using cross-correlation of chirp signals.
+     * Plays 3 chirps (500ms each) separated by 500ms silence, records ~3.5s,
+     * cross-correlates each chirp with reference and averages.
+     */
+    public void startChirpDelayMeasurement(AudioEngine engine) {
+        if (calibrating) return;
+        this.audioEngine = engine;
+        calibrating = true;
+        state = State.MEASURING_CHIRP_DELAY;
+
+        int chirpSamples = (int) (CHIRP_DURATION_SEC * sampleRate);
+        int silenceSamples = (int) (CHIRP_SILENCE_SEC * sampleRate);
+        int chirpSpacing = chirpSamples + silenceSamples;
+        totalRecordSamples = chirpSpacing * NUM_CHIRPS + sampleRate; // + 1s buffer
+        recordBuffer = new float[totalRecordSamples];
+        recordPosition = 0;
+
+        // Generate the chirp sequence
+        float[] chirpSequence = new float[chirpSpacing * NUM_CHIRPS];
+        for (int c = 0; c < NUM_CHIRPS; c++) {
+            float[] chirpBuf = new float[chirpSpacing]; // chirp + silence (zero-filled by generateChirp)
+            generator.generateChirp(chirpBuf, sampleRate, CHIRP_START_FREQ, CHIRP_END_FREQ,
+                    chirpSamples, 0.8f);
+            System.arraycopy(chirpBuf, 0, chirpSequence, c * chirpSpacing, chirpSpacing);
+        }
+
+        final float[] playData = chirpSequence;
+        final int[] playPos = {0};
+        final int finalChirpSamples = chirpSamples;
+        final int finalSilenceSamples = silenceSamples;
+
+        audioEngine.setCallback(new AudioEngine.AudioCallback() {
+            @Override
+            public void onWriteBuffer(float[] monoBuffer, int numFrames) {
+                for (int i = 0; i < numFrames; i++) {
+                    if (playPos[0] < playData.length) {
+                        monoBuffer[i] = playData[playPos[0]++];
+                    } else {
+                        monoBuffer[i] = 0f;
+                    }
+                }
+            }
+
+            @Override
+            public void onReadBuffer(float[] monoBuffer, int numFrames) {
+                if (state != State.MEASURING_CHIRP_DELAY) return;
+                int toCopy = Math.min(numFrames, totalRecordSamples - recordPosition);
+                if (toCopy > 0) {
+                    System.arraycopy(monoBuffer, 0, recordBuffer, recordPosition, toCopy);
+                    recordPosition += toCopy;
+                }
+
+                if (recordPosition >= totalRecordSamples) {
+                    state = State.IDLE;
+                    processChirpDelayMeasurement(finalChirpSamples, finalSilenceSamples);
+                }
+            }
+        });
+
+        audioEngine.start();
+    }
+
+    private void processChirpDelayMeasurement(int chirpSamples, int silenceSamples) {
+        audioEngine.stop();
+
+        // Generate reference chirp for correlation
+        float[] refChirp = new float[chirpSamples];
+        generator.generateChirp(refChirp, sampleRate, CHIRP_START_FREQ, CHIRP_END_FREQ,
+                chirpSamples, 0.8f);
+
+        int maxDelay = (int) (0.300 * sampleRate); // 300ms max
+        int chirpSpacing = chirpSamples + silenceSamples;
+
+        DelayEstimator.MultiBurstResult result = delayEstimator.estimateDelayMultiBurstValidated(
+                refChirp, recordBuffer, chirpSpacing, NUM_CHIRPS, maxDelay);
+
+        calibrating = false;
+
+        if (!result.valid) {
+            if (listener != null) {
+                listener.onError(result.rejectReason);
+            }
+            return;
+        }
+
+        measuredDelaySamples = (int) Math.round(result.delaySamples);
+        double delayMs = result.delaySamples / sampleRate * 1000.0;
+
+        if (listener != null) {
+            listener.onChirpDelayMeasured(measuredDelaySamples, delayMs, result.individualDelays);
         }
     }
 
@@ -246,6 +353,11 @@ public class CalibrationManager {
             @Override
             public void onDelayMeasured(int delaySamples, double delayMs) {
                 if (originalListener != null) originalListener.onDelayMeasured(delaySamples, delayMs);
+            }
+
+            @Override
+            public void onChirpDelayMeasured(int delaySamples, double delayMs, double[] individualDelays) {
+                if (originalListener != null) originalListener.onChirpDelayMeasured(delaySamples, delayMs, individualDelays);
             }
 
             @Override

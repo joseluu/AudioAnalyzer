@@ -27,9 +27,16 @@ public class CalibrationActivity extends AppCompatActivity {
     private Handler uiHandler;
 
     private RadioGroup channelGroup;
+    // Step 1 - Ping Delay
     private Button btnStart;
     private TextView tvDelay;
+    // Step 2 - Chirp Delay
+    private Button btnChirpDelay;
+    private TextView tvChirp1, tvChirp2, tvChirp3, tvChirpAvg;
+    private View chirpLayout;
+    // Step 3 - Phase Verification
     private TextView tvPhase30, tvPhase100, tvPhase300, tvPhase1000;
+    private Button btnPhaseVerification;
     private Button btnRemeasure30, btnRemeasure100, btnRemeasure300, btnRemeasure1000;
     private SeekBar seekFineAdjust;
     private TextView tvFineAdjust;
@@ -55,6 +62,10 @@ public class CalibrationActivity extends AppCompatActivity {
         bindViews();
         setupListeners();
 
+        // Display sample rate
+        TextView tvSampleRate = findViewById(R.id.tvSampleRate);
+        tvSampleRate.setText(String.format(Locale.US, "Sample rate: %d Hz", sampleRate));
+
         // Set initial channel selection
         if (leftChannel) {
             ((RadioButton) findViewById(R.id.radioLeft)).setChecked(true);
@@ -67,8 +78,18 @@ public class CalibrationActivity extends AppCompatActivity {
 
     private void bindViews() {
         channelGroup = findViewById(R.id.channelGroup);
+        // Step 1
         btnStart = findViewById(R.id.btnStartCalibration);
         tvDelay = findViewById(R.id.tvDelay);
+        // Step 2
+        btnChirpDelay = findViewById(R.id.btnChirpDelay);
+        tvChirp1 = findViewById(R.id.tvChirp1);
+        tvChirp2 = findViewById(R.id.tvChirp2);
+        tvChirp3 = findViewById(R.id.tvChirp3);
+        tvChirpAvg = findViewById(R.id.tvChirpAvg);
+        chirpLayout = findViewById(R.id.chirpLayout);
+        // Step 3
+        btnPhaseVerification = findViewById(R.id.btnPhaseVerification);
         tvPhase30 = findViewById(R.id.tvPhase30);
         tvPhase100 = findViewById(R.id.tvPhase100);
         tvPhase300 = findViewById(R.id.tvPhase300);
@@ -88,44 +109,31 @@ public class CalibrationActivity extends AppCompatActivity {
             audioEngine.setLeftChannel(checkedId == R.id.radioLeft);
         });
 
-        calibrationManager.setListener(new CalibrationManager.CalibrationListener() {
-            @Override
-            public void onDelayMeasured(int delaySamples, double delayMs) {
-                uiHandler.post(() -> {
-                    tvDelay.setText(String.format(Locale.US,
-                            "Measured delay: %d samples (%.2f ms)", delaySamples, delayMs));
-                    btnStart.setEnabled(true);
-                    phaseLayout.setVisibility(View.VISIBLE);
+        setupCalibrationListener();
 
-                    // Auto-run phase verification
-                    runAllVerifications();
-                });
-            }
-
-            @Override
-            public void onPhaseVerification(double frequency, double phaseDegrees) {
-                uiHandler.post(() -> updatePhaseDisplay(frequency, phaseDegrees));
-            }
-
-            @Override
-            public void onCalibrationComplete(CalibrationResult result) {
-                uiHandler.post(() -> {
-                    enableRemeasureButtons(true);
-                    btnValidate.setEnabled(true);
-                });
-            }
-
-            @Override
-            public void onError(String message) {
-                uiHandler.post(() -> tvDelay.setText("Error: " + message));
-            }
-        });
-
+        // Step 1 - Ping Delay
         btnStart.setOnClickListener(v -> {
             btnStart.setEnabled(false);
-            tvDelay.setText("Measuring delay...");
-            phaseLayout.setVisibility(View.GONE);
+            tvDelay.setText("Measuring ping delay...");
+            setupCalibrationListener();
             calibrationManager.startDelayMeasurement(audioEngine);
+        });
+
+        // Step 2 - Chirp Delay
+        btnChirpDelay.setOnClickListener(v -> {
+            btnChirpDelay.setEnabled(false);
+            tvChirpAvg.setText("Measuring chirp delay...");
+            tvChirp1.setText("--");
+            tvChirp2.setText("--");
+            tvChirp3.setText("--");
+            setupCalibrationListener();
+            calibrationManager.startChirpDelayMeasurement(audioEngine);
+        });
+
+        // Step 3 - Phase Verification (run all)
+        btnPhaseVerification.setOnClickListener(v -> {
+            setupCalibrationListener();
+            runAllVerifications();
         });
 
         btnRemeasure30.setOnClickListener(v -> remeasure(30.0));
@@ -160,8 +168,70 @@ public class CalibrationActivity extends AppCompatActivity {
         });
     }
 
+    private void setupCalibrationListener() {
+        calibrationManager.setListener(new CalibrationManager.CalibrationListener() {
+            @Override
+            public void onDelayMeasured(int delaySamples, double delayMs) {
+                uiHandler.post(() -> {
+                    tvDelay.setText(String.format(Locale.US,
+                            "Ping delay: %d samples (%.2f ms)", delaySamples, delayMs));
+                    btnStart.setEnabled(true);
+                    phaseLayout.setVisibility(View.VISIBLE);
+                });
+            }
+
+            @Override
+            public void onChirpDelayMeasured(int delaySamples, double delayMs, double[] individualDelays) {
+                uiHandler.post(() -> {
+                    int sampleRate = audioEngine.getSampleRate();
+                    if (individualDelays.length >= 1) {
+                        tvChirp1.setText(String.format(Locale.US, "%.1f samples (%.2f ms)",
+                                individualDelays[0], individualDelays[0] / sampleRate * 1000.0));
+                    }
+                    if (individualDelays.length >= 2) {
+                        tvChirp2.setText(String.format(Locale.US, "%.1f samples (%.2f ms)",
+                                individualDelays[1], individualDelays[1] / sampleRate * 1000.0));
+                    }
+                    if (individualDelays.length >= 3) {
+                        tvChirp3.setText(String.format(Locale.US, "%.1f samples (%.2f ms)",
+                                individualDelays[2], individualDelays[2] / sampleRate * 1000.0));
+                    }
+                    tvChirpAvg.setText(String.format(Locale.US,
+                            "Chirp delay (avg): %d samples (%.2f ms)", delaySamples, delayMs));
+                    btnChirpDelay.setEnabled(true);
+                    phaseLayout.setVisibility(View.VISIBLE);
+                });
+            }
+
+            @Override
+            public void onPhaseVerification(double frequency, double phaseDegrees) {
+                uiHandler.post(() -> updatePhaseDisplay(frequency, phaseDegrees));
+            }
+
+            @Override
+            public void onCalibrationComplete(CalibrationResult result) {
+                uiHandler.post(() -> {
+                    enableRemeasureButtons(true);
+                    btnPhaseVerification.setEnabled(true);
+                    btnValidate.setEnabled(true);
+                });
+            }
+
+            @Override
+            public void onError(String message) {
+                uiHandler.post(() -> {
+                    tvDelay.setText("Error: " + message);
+                    btnStart.setEnabled(true);
+                    btnChirpDelay.setEnabled(true);
+                    btnPhaseVerification.setEnabled(true);
+                });
+            }
+        });
+    }
+
     private void runAllVerifications() {
         enableRemeasureButtons(false);
+        btnPhaseVerification.setEnabled(false);
         btnValidate.setEnabled(false);
         calibrationManager.runAllVerifications(audioEngine);
     }
@@ -170,17 +240,19 @@ public class CalibrationActivity extends AppCompatActivity {
         enableRemeasureButtons(false);
         calibrationManager.measurePhaseAtFrequency(audioEngine, frequency);
 
-        // Re-enable after measurement (listener will fire)
-        CalibrationManager.CalibrationListener prevListener = null;
         calibrationManager.setListener(new CalibrationManager.CalibrationListener() {
             @Override
             public void onDelayMeasured(int d, double ms) {}
+
+            @Override
+            public void onChirpDelayMeasured(int d, double ms, double[] ind) {}
 
             @Override
             public void onPhaseVerification(double freq, double phase) {
                 uiHandler.post(() -> {
                     updatePhaseDisplay(freq, phase);
                     enableRemeasureButtons(true);
+                    setupCalibrationListener();
                 });
             }
 
@@ -189,7 +261,10 @@ public class CalibrationActivity extends AppCompatActivity {
 
             @Override
             public void onError(String message) {
-                uiHandler.post(() -> enableRemeasureButtons(true));
+                uiHandler.post(() -> {
+                    enableRemeasureButtons(true);
+                    setupCalibrationListener();
+                });
             }
         });
     }
